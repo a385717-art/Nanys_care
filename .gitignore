@@ -46,3 +46,10 @@ app.*.map.json
 
 # Credenciales de Supabase — NO subir al repo
 lib/core/constants/secrets.dart
+
+# -- Claves secretas (NUNCA subir) --------------
+.env
+*.env
+secrets.dart
+google-services.json
+GoogleService-Info.plist
