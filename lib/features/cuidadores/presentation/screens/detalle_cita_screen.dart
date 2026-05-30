@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:intl/intl.dart';
+import 'package:nanys_care/features/citas/data/citas_repository.dart';
 
 class DetalleCitaScreen extends StatefulWidget {
   final Map<String, dynamic> cita;
@@ -13,7 +13,7 @@ class DetalleCitaScreen extends StatefulWidget {
 }
 
 class _DetalleCitaScreenState extends State<DetalleCitaScreen> {
-  final _client = Supabase.instance.client;
+  final _citasRepo = CitasRepository(); 
   bool _loading = false;
 
   // Colores de la marca Nanys Care
@@ -23,10 +23,19 @@ class _DetalleCitaScreenState extends State<DetalleCitaScreen> {
   Future<void> _modificarEstadoCita(String nuevoEstado) async {
     setState(() => _loading = true);
     try {
-      await _client.from('citas').update({
-        'estado': nuevoEstado,
-        'updated_at': DateTime.now().toIso8601String(),
-      }).eq('id', widget.cita['id']);
+      final citaId = widget.cita['id'];
+
+      // Llamamos al Repositorio en lugar de Supabase directo
+      // Esto asegura que los CORREOS de la US10 se envíen automáticamente
+      if (nuevoEstado == 'aceptada') {
+        await _citasRepo.aceptarCita(citaId);
+      } else if (nuevoEstado == 'rechazada') {
+        await _citasRepo.rechazarCita(citaId);
+      } else if (nuevoEstado == 'completada') {
+        await _citasRepo.completarCita(citaId);
+      } else if (nuevoEstado == 'cancelada') {
+        await _citasRepo.cancelarCita(citaId);
+      }
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -154,7 +163,7 @@ class _DetalleCitaScreenState extends State<DetalleCitaScreen> {
                                 _InfoRow(
                                   icon: Icons.monetization_on_rounded,
                                   title: 'Tarifa total estimada',
-                                  value: '\$${widget.cita['costo_total']} MXN',
+                                  value: '\$${widget.cita['tarifa_total'] ?? widget.cita['costo_total']} MXN',
                                   iconColor: const Color(0xFF00BFA5),
                                   isPrice: true,
                                 ),
@@ -163,7 +172,7 @@ class _DetalleCitaScreenState extends State<DetalleCitaScreen> {
                           ),
                           
                           // Notas adicionales (Si existen)
-                          if (widget.cita['notas'] != null && widget.cita['notas'].toString().isNotEmpty) ...[
+                          if (widget.cita['notas'] != null && widget.cita['notas'].toString().trim().isNotEmpty) ...[
                             const SizedBox(height: 24),
                             const Text('Notas del Tutor', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
                             const SizedBox(height: 12),
