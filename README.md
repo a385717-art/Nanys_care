@@ -183,14 +183,3 @@ flutter run
 - Cada usuario solo puede ver y modificar sus propios datos
 
 ---
-
-## 👥 Equipo
-
-Proyecto desarrollado para la materia de Desarrollo de Software  
-Instituto / Universidad — Mayo 2026
-
----
-
-<div align="center">
-Hecho con ❤️ y Flutter
-</div>
